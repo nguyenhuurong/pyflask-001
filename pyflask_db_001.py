@@ -63,6 +63,26 @@ def giaiptb1():
         kq = { "tt" : str }
     return jsonify(kq)
 
+
+@app.route('/giaib2', methods=['GET'])
+def giaib2():
+    query_parameters = request.args
+    a = query_parameters.get("a")
+    b = query_parameters.get("b")
+    c = query_parameters.get("c")
+
+    a = number(a)
+    b = number(b)
+    c = number(c)
+
+    str = "chưa biết có nghiệm hay không ! "
+    
+    kq = { "Trạng thái" : str , "Hệ số" : (a, b, c) }
+    ### 
+    
+    return jsonify(kq)
+
+
 class Parameters(Resource):
     def get(self, firstParam):
         return "Day la tam so " + firstParam
