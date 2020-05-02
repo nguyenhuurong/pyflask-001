@@ -71,9 +71,9 @@ def giaib2():
     b = query_parameters.get("b")
     c = query_parameters.get("c")
 
-    a = number(a)
-    b = number(b)
-    c = number(c)
+    a = float(a)
+    b = float(b)
+    c = float(c)
 
     str = "chưa biết có nghiệm hay không ! "
     
