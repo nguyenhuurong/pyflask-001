@@ -9,8 +9,18 @@ from json import dumps
 from flask import jsonify
 
 
+import pymongo 
+from pymongo import MongoClient 
+
 app = Flask(__name__)
 #db_connect = create_engine('sqlite:///dsNhanVien.db')
+
+MONGO_URI = 'mongodb+srv://rong:rong@cluster0-f5qr6.mongodb.net/test?retryWrites=true&w=majority'
+cluster = MongoClient(MONGO_URI)
+
+db = cluster["ShopOnline"]
+
+
 
 @app.route('/')
 def  index():
@@ -18,7 +28,19 @@ def  index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def  login():
-    return render_template("login.html")
+    query_parameters = request.args
+    vusername = query_parameters.get("Id")
+    vpassword = query_parameters.get("HoTen")
+
+    ### ch-eck Account / Tài khoản USER
+    collection = db["NhanVien"]
+    results = collection.find({"Id":1001, "HoTen": "NguyenVanA"}) 
+
+    if len(results) == 1:
+        logined_flag = True
+        return render_template("home.html")
+    else:
+        return render_template("login.html")
 
 @app.route('/profile')
 def  profile():
