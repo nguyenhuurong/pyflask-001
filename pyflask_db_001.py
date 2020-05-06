@@ -1,3 +1,6 @@
+from math import *
+import pymongo 
+from pymongo import MongoClient 
 from flask import  (
     Flask,
     render_template,
@@ -8,19 +11,12 @@ from sqlalchemy import create_engine
 from json import dumps
 from flask import jsonify
 
-
-import pymongo 
-from pymongo import MongoClient 
+MONGO_URI = 'mongodb+srv://rong:rong@cluster0-f5qr6.mongodb.net/test?retryWrites=true&w=majority'
+cluster = MongoClient(MONGO_URI)
+db = cluster["ShopOnline"]
 
 app = Flask(__name__)
 #db_connect = create_engine('sqlite:///dsNhanVien.db')
-
-MONGO_URI = 'mongodb+srv://rong:rong@cluster0-f5qr6.mongodb.net/test?retryWrites=true&w=majority'
-cluster = MongoClient(MONGO_URI)
-
-db = cluster["ShopOnline"]
-
-
 
 @app.route('/')
 def  index():
@@ -29,16 +25,13 @@ def  index():
 @app.route('/login', methods=['GET', 'POST'])
 def  login():
     query_parameters = request.args
-    vusername = query_parameters.get("Id")
-    vpassword = query_parameters.get("HoTen")
-
-    ### ch-eck Account / Tài khoản USER
+    vusername = query_parameters.get("username")
+    vpassword = query_parameters.get("password")
     collection = db["NhanVien"]
-    results = collection.find({"Id":1001, "HoTen": "NguyenVanA"}) 
+    results = collection.find({"username":vusername, "password":vpassword})
 
-    if len(results) == 1:
-        logined_flag = True
-        return render_template("home.html")
+    if len(list(results)) == 1:
+        return render_template("profile.html")
     else:
         return render_template("login.html")
 
@@ -46,11 +39,14 @@ def  login():
 def  profile():
     return render_template("profile.html")
 
+@app.route('/services')
+def  call_services():
+    return render_template("call_api.html")
+
 @app.route('/params', methods=['GET'])
 def api_filter():
     query_parameters = request.args
     return jsonify(query_parameters)
-
 
 @app.route('/giaiptb1', methods=['GET'])
 def giaiptb1():
@@ -77,51 +73,29 @@ def giaiptb1():
         kq = { "tt" : str }
     return jsonify(kq)
 
-class Parameters(Resource):
-    def get(self, firstParam):
-        return "Day la tam so " + firstParam
-    
-@app.route('/giaiptb2', methods=['GET'])
-import math
-def giaiptb2():
+
+@app.route('/giaib2', methods=['GET'])
+def giaib2():
     query_parameters = request.args
     a = query_parameters.get("a")
     b = query_parameters.get("b")
-    c = query_parameters.get("a")
+    c = query_parameters.get("c")
 
-    a = int(a)
-    b = int(b)
-    c = int(c)
-    str = "khong co nghiem"
-    kq = { "tt" : str }
+    a = float(a)
+    b = float(b)
+    c = float(c)
+
+    str = "chưa biết có nghiệm hay không ! "
     
-    if (a == 0):
-        if (b == 0):
-            kq = { "tt" : str };
-        else:
-            x =  -b/a
-            str = "co 1 nghiem"
-            kq = { "tt" : str , "x" : x}
-        return;
-    delta = b * b - 4 * a * c;
-    if (delta > 0):
-        x1 = (float)((-b + math.sqrt(delta)) / (2 * a));
-        x2 = (float)((-b - math.sqrt(delta)) / (2 * a));
-        str = "co 2 nghiem"
-        kq = { "tt" : str , "x1" : x1,"x2" : x2}
-    elif (delta == 0):
-        x1 = (-b / (2 * a));
-        str = "co nghiem kep"
-        kq = { "tt" : str , "x1 = x2 = " : x1}
-    else:
-        str = "khong co nghiem"
-        kq = { "tt" : str }
+    kq = { "Trạng thái" : str , "Hệ số" : (a, b, c) }
+    ### 
+    
     return jsonify(kq)
+
 
 class Parameters(Resource):
     def get(self, firstParam):
         return "Day la tam so " + firstParam
-
 
 api = Api(app)
 api.add_resource(Parameters, '/parameters/<firstParam>') # Route_1
